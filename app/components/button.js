@@ -6,6 +6,7 @@ import {
   TouchableHighlight,
   Image
 } from 'react-native';
+import EStyleSheet from 'react-native-extended-stylesheet';
 
 class Button extends Component {
   constructor(props) {
@@ -45,7 +46,7 @@ class Button extends Component {
   }
 }
 
-const styles = StyleSheet.create({
+const styles = EStyleSheet.create({
   button: {
     backgroundColor: 'black',
     borderRadius: 5,
@@ -59,7 +60,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center'
   },
   buttonText: {
-    fontFamily: 'AvenirNext-Regular',
+    fontFamily: '$mainFont',
     fontSize: 13,
     color: '#ffffff'
   },

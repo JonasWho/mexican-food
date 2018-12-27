@@ -160,18 +160,18 @@ const styles = EStyleSheet.create({
     padding: 18
   },
   osTitle: {
-    fontFamily: 'AvenirNext-Regular',
+    fontFamily: '$mainFont',
     fontSize: 30,
     lineHeight: 34
   },
   osItemTitle: {
-    fontFamily: 'AvenirNext-Regular',
+    fontFamily: '$mainFont',
     fontSize: 18,
     fontWeight: '700',
     marginTop: 20
   },
   osItemText: {
-    fontFamily: 'AvenirNext-Regular',
+    fontFamily: '$mainFont',
     fontSize: 16
   },
   osLink: {
