@@ -9,6 +9,7 @@ import {
   Platform,
   Dimensions
 } from 'react-native';
+import { AppLoading, Asset } from 'expo';
 import EStyleSheet from 'react-native-extended-stylesheet';
 
 import FoodItem from '../components/item';
@@ -61,7 +62,8 @@ class FoodList extends Component {
     this.state = {
       allData: data,
       data,
-      showSearch: false
+      showSearch: false,
+      isReady: false
     };
   }
 
@@ -86,52 +88,65 @@ class FoodList extends Component {
     );
   };
 
+  _cacheResourcesAsync = async () => {
+    const cacheImages = this.state.allData.map(foodItem => {
+      return Asset.fromModule(h.getImageSource(foodItem.id)).downloadAsync();
+    });
+    return Promise.all(cacheImages);
+  };
+
   render() {
-    const { data, allData, filterQuery } = this.state;
+    const { data, allData, filterQuery, isReady } = this.state;
     const { navigation } = this.props;
     const showSearch = navigation.state.params
       ? navigation.state.params.showSearch
       : false;
 
-    if (data) {
+    if (!isReady)
       return (
-        <View style={styles.foodListView}>
-          <View style={styles.foodListView}>
-            <FlatList
-              initialNumToRender={6}
-              data={data}
-              renderItem={this.renderFood}
-              ListHeaderComponent={() => (
-                <View style={showSearch ? { height: 36 } : {}} />
-              )}
-              ItemSeparatorComponent={() => <View style={styles.separator} />}
-              style={[styles.listContainer, data ? { flex: 0, height: 0 } : {}]}
-              renderHeader
-              keyExtractor={(item, index) => `${item.id}`}
-              getItemLayout={(data, index) => ({
-                length: ITEM_HEIGHT,
-                offset: ITEM_HEIGHT * index,
-                index
-              })}
-              keyboardDismissMode={'on-drag'}
-              keyboardShouldPersistTaps={'handled'}
-            />
-            <NoResult count={data.length} filterQuery={filterQuery} />
-          </View>
-          <SearchField
-            data={allData}
-            showSearch={showSearch}
-            resetSearch={() => {
-              navigation.setParams({ showSearch: false });
-            }}
-            updateList={data => this.setState({ data })}
-            filterQuery={filterQuery}
-          />
-        </View>
+        <AppLoading
+          startAsync={this._cacheResourcesAsync}
+          onFinish={() => this.setState({ isReady: true })}
+          onError={console.warn}
+          autoHideSplash={false}
+        />
       );
-    } else {
-      return <Loading loaded={state.isLoaded} />;
-    }
+    if (!data) return <Loading />;
+    return (
+      <View style={styles.foodListView}>
+        <View style={styles.foodListView}>
+          <FlatList
+            initialNumToRender={6}
+            data={data}
+            renderItem={this.renderFood}
+            ListHeaderComponent={() => (
+              <View style={showSearch ? { height: 36 } : {}} />
+            )}
+            ItemSeparatorComponent={() => <View style={styles.separator} />}
+            style={[styles.listContainer, data ? { flex: 0, height: 0 } : {}]}
+            renderHeader
+            keyExtractor={(item, index) => `${item.id}`}
+            getItemLayout={(data, index) => ({
+              length: ITEM_HEIGHT,
+              offset: ITEM_HEIGHT * index,
+              index
+            })}
+            keyboardDismissMode={'on-drag'}
+            keyboardShouldPersistTaps={'handled'}
+          />
+          <NoResult count={data.length} filterQuery={filterQuery} />
+        </View>
+        <SearchField
+          data={allData}
+          showSearch={showSearch}
+          resetSearch={() => {
+            navigation.setParams({ showSearch: false });
+          }}
+          updateList={data => this.setState({ data })}
+          filterQuery={filterQuery}
+        />
+      </View>
+    );
   }
 }
 
